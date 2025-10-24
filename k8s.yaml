@@ -1,0 +1,80 @@
+# MySQL database (Deployment + Service)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql
+spec:
+  selector:
+    matchLabels:
+      app: mysql
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      containers:
+        - name: mysql
+          image: mysql:latest
+          ports:
+            - containerPort: 3306
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              value: rootpassword
+            - name: MYSQL_DATABASE
+              value: users_db
+          volumeMounts:
+            - name: mysql-data
+              mountPath: /var/lib/mysql
+      volumes:
+        - name: mysql-data
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql
+spec:
+  selector:
+    app: mysql
+  ports:
+    - name: mysql
+      port: 3306
+      targetPort: 3306
+      protocol: TCP
+---
+# Users API Deployment + Service
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: users-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: users-api
+  template:
+    metadata:
+      labels:
+        app: users-api
+    spec:
+      containers:
+        - name: users-api
+          image: rinkiyakedad/users-api
+          ports:
+            - containerPort: 8080
+          env:
+            - name: DB_CONNECTION_URL
+              value: "mysql://root:rootpassword@mysql:3306/users_db"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: users-api
+spec:
+  selector:
+    app: users-api
+  ports:
+    - name: http
+      port: 80
+      targetPort: 8080
+      protocol: TCP
