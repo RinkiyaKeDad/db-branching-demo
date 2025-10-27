@@ -9,21 +9,6 @@
         },
         "fs": {
             "mode": "read"
-        },
-        "db_branches": [
-            {
-                "id": "branch-test-01",
-                "type": "mysql",
-                "version": "8.0",
-                "name": "users_db",
-                "ttl_secs": 300,
-                "connection": {
-                    "url": {
-                        "type": "env",
-                        "variable": "DB_CONNECTION_URL"
-                    }
-                }
-            }
-        ]
+        }
     }
 }
